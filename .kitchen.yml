@@ -1,10 +1,10 @@
 ---
 driver:
   name: ec2
-  aws_access_key_id: <%= ENV['AWS_ACCESS_KEY'] %>
-  aws_secret_access_key: <%= ENV['AWS_SECRET_KEY'] %>
-  aws_ssh_key_id: <%= ENV['AWS_SSH_KEY_ID'] %>
-  ssh_key: <%= File.expand_path('.ssh/tkitchen') %>
+  aws_access_key_id: <%= ENV['ARTIFACTS_AWS_ACCESS_KEY_ID'] %>
+  aws_secret_access_key: <%= ENV['ARTIFACTS_AWS_SECRET_ACCESS_KEY'] %>
+  aws_ssh_key_id: <%= ENV['AWS_KEYPAIR_NAME'] %>
+  ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
   security_group_ids: ["default"]
   security_group_ids: default
   require_chef_omnibus: "10.16.2"
