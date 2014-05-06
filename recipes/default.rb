@@ -32,7 +32,7 @@ case node['platform_family']
 
     bash "unpack apache-maven" do
       code <<-EEND
-        mkdir /opt/apache-maven && tar -zxf apache-maven.tar.gz -C /opt/apache-maven && chmod 755 /opt/apache-maven/bin/mvn
+        mkdir /opt/apache-maven && tar -zxf /opt/apache-maven.tar.gz -C /opt/apache-maven && chmod 755 /opt/apache-maven/bin/mvn
       EEND
     end
 
