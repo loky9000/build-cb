@@ -26,7 +26,7 @@ case node['platform_family']
       to "/usr/bin/mvn3"
     end
   when "rhel"
-    remotefile "/opt/apache-maven.tar.gz" do
+    remote_file "/opt/apache-maven.tar.gz" do
       source "http://mirror.olnevhost.net/pub/apache/maven/binaries/apache-maven-3.2.1-bin.tar.gz"
     end
 
