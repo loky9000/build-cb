@@ -23,7 +23,7 @@ platforms:
       username: ubuntu
       flavor_id: "m1.small"
       tags:
-        Name: build-ct-Ubuntu-12.04
+        Name: cookbook-qubell-build-ct-Ubuntu-12.04
         owner_name: test-kitchen
 
   - name: ubuntu-10.04
@@ -32,7 +32,7 @@ platforms:
       username: ubuntu
       flavor_id: "m1.small"
       tags:
-        Name: build-ct-Ubuntu-10.04
+        Name: cookbook-qubell-build-ct-Ubuntu-10.04
         owner_name: test-kitchen
 
   - name: centos-6.4
@@ -41,7 +41,7 @@ platforms:
       username: root
       flavor_id: "m1.small"
       tags:
-        Name: build-ct-CentOS-6.4
+        Name: cookbook-qubell-build-ct-CentOS-6.4
         owner_name: test-kitchen
 
   - name: centos-5.3
@@ -50,15 +50,15 @@ platforms:
       username: root
       flavor_id: "m1.small"
       tags:
-        Name: build-ct-CentOS-5.3
+        Name: cookbook-qubell-build-ct-CentOS-5.3
         owner_name: test-kitchen
 
 suites:
   - name: default
     run_list:
       - recipe[minitest-handler]
-      - recipe[build_test]
-    attributes: {"build": {
+      - recipe[cookbook-qubell-build_test]
+    attributes: {"cookbook-qubell-build": {
                   "dest_path": "/tmp", 
                   "target": "/tmp/mvn"
                   },
