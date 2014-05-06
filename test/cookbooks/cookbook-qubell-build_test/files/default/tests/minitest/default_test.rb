@@ -5,7 +5,7 @@ def assert_include_content(file, content)
   assert File.read(file).include?(content), "Expected file '#{file}' to include the specified content #{content}"
 end
 
-describe_recipe 'build::default' do
+describe_recipe 'cookbook-qubell-build::default' do
   it "install maven3 package" do
   case node['platform_family']
     when "debian"
