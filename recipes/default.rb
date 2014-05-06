@@ -1,7 +1,7 @@
 # Recipe cookbook-qubell-build  app  from git , parse war files and copy to cookbook-qubell-build target
 #
-case node['platform']
-  when "ubuntu"
+case node['platform_family']
+  when "debian"
     execute "update packages cache" do
       command "apt-get update"
     end
@@ -9,8 +9,8 @@ case node['platform']
 
 include_recipe "java"
 include_recipe "git"
-case node['platform']
-  when "ubuntu"
+case node['platform_family']
+  when "debian"
     include_recipe "apt"
     apt_repository "apache-maven3" do
       uri "http://ppa.launchpad.net/natecarlson/maven3/ubuntu/"
@@ -25,15 +25,17 @@ case node['platform']
     link "/usr/sbin/mvn" do
       to "/usr/bin/mvn3"
     end
-  when "centos"
-    yum_repository "apache-maven3" do
-      description "apache-maven3 repo"
-      url "http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-$releasever/$basearch/"
-      action :create
+  when "rhel"
+    remotefile "/opt/apache-maven.tar.gz" do
+      source "http://mirror.olnevhost.net/pub/apache/maven/binaries/apache-maven-3.2.1-bin.tar.gz"
     end
-    package "apache-maven" do
-      action :install
+
+    bash "unpack apache-maven" do
+      code <<-EEND
+        mkdir /opt/apache-maven && tar -zxf apache-maven.tar.gz -C /opt/apache-maven && chmod 755 /opt/apache-maven/bin/mvn
+      EEND
     end
+
     link "/usr/sbin/mvn" do
       to "/usr/share/apache-maven/bin/mvn"
     end
