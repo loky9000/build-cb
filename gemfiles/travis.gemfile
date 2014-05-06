@@ -1,6 +1,6 @@
 source 'https://rubygems.org/'
 
-gem 'berkshelf'
+gem "berkshelf", github: "berkshelf/berkshelf", tag: "61111422de0247ad2ed234c76e1951586868f5cf"
 gem 'test-kitchen' 
 gem 'kitchen-ec2'
 gem 'rake'

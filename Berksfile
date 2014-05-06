@@ -1,5 +1,4 @@
-source "http://berkshelf-api.yourdomain.com:26100"
-source "https://api.berkshelf.com"
+site :opscode
 
 metadata
 
