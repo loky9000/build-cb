@@ -1,4 +1,4 @@
-source "https://api.berkshelf.com"
+site :opscode
 
 metadata
 
@@ -9,3 +9,4 @@ cookbook "minitest-handler", git: "https://github.com/btm/minitest-handler-cookb
 cookbook "cookbook-qubell-build_test", path: "./test/cookbooks/cookbook-qubell-build_test"
 cookbook 'yum', git: "https://github.com/opscode-cookbooks/yum.git", ref: "76dea86a6c849a46be00086c7403d7821c1d3730"
 cookbook 'apt', git: "https://github.com/opscode-cookbooks/apt.git"
+
