@@ -1,4 +1,4 @@
-# Recipe build  app  from git , parse war files and copy to build target
+# Recipe cookbook-qubell-build  app  from git , parse war files and copy to cookbook-qubell-build target
 #
 case node['platform']
   when "ubuntu"
@@ -43,7 +43,7 @@ git_url="/tmp/gittest"
 new_git_url = "#{node['scm']['repository']}?#{node['scm']['revision']}"
 cur_git_url = ""
 
- directory node['build']['target'] do
+ directory node['cookbook-qubell-build']['target'] do
    action :create
  end
 
@@ -55,12 +55,12 @@ if !cur_git_url.eql? new_git_url
 
   case node['scm']['provider']
     when "git"
-      bash "clean #{node['build']['dest_path']}/webapp" do
+      bash "clean #{node['cookbook-qubell-build']['dest_path']}/webapp" do
         code <<-EEND
-          rm -rf #{node['build']['dest_path']}/webapp
+          rm -rf #{node['cookbook-qubell-build']['dest_path']}/webapp
         EEND
       end
-      git "#{node['build']['dest_path']}/webapp" do
+      git "#{node['cookbook-qubell-build']['dest_path']}/webapp" do
         repository node['scm']['repository']
         revision node['scm']['revision']
         action :sync
@@ -74,20 +74,20 @@ if !cur_git_url.eql? new_git_url
   end
 
   execute "package" do
-    command "cd #{node['build']['dest_path']}/webapp; mvn clean package" 
+    command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; mvn clean package" 
 end
   execute "copy_wars" do
-      command "cd #{node['build']['dest_path']}/webapp; for i in $(find -regex '.*/target/[^/]*.war');do cp $i #{node['build']['target']};done"
+      command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; for i in $(find -regex '.*/target/[^/]*.war');do cp $i #{node['cookbook-qubell-build']['target']};done"
       notifies :create, "ruby_block[set attrs]"
   end
 
 
   ruby_block "set attrs" do
      block do
-        dir = node['build']['target']
+        dir = node['cookbook-qubell-build']['target']
         artefacts = (Dir.entries(dir).select {|f| !File.directory? f}).map {|f| "file://" + File.join(dir, f)}
         artefacts = artefacts.sort
-        node.set['build']['artefacts'] = artefacts
+        node.set['cookbook-qubell-build']['artefacts'] = artefacts
      end
   end
 

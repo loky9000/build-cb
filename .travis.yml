@@ -57,4 +57,4 @@ after_script:
 - bundle exec kitchen destroy $KITCHEN_INSTANCE
 notifications:
   email:
-  - abutovich@qubell.com
+  - aivantsov@qubell.com
