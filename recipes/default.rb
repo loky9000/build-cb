@@ -26,18 +26,19 @@ case node['platform_family']
       to "/usr/bin/mvn3"
     end
   when "rhel"
+    mvn_version = "3.2.1"
     remote_file "/opt/apache-maven.tar.gz" do
-      source "http://mirror.olnevhost.net/pub/apache/maven/binaries/apache-maven-3.2.1-bin.tar.gz"
+      source "http://mirror.olnevhost.net/pub/apache/maven/binaries/apache-maven-#{mvn_version}-bin.tar.gz"
     end
 
     bash "unpack apache-maven" do
       code <<-EEND
-        mkdir /opt/apache-maven && tar -zxf /opt/apache-maven.tar.gz -C /opt/apache-maven && chmod 755 /opt/apache-maven/bin/mvn
+        tar -zxf /opt/apache-maven.tar.gz -C /opt/ && chmod 755 /opt/apache-maven-#{mvn_version}/bin/mvn
       EEND
     end
 
     link "/usr/sbin/mvn" do
-      to "/usr/share/apache-maven/bin/mvn"
+      to "/opt/apache-maven-#{mvn_version}/bin/mvn"
     end
   end
 
