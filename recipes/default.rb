@@ -77,7 +77,7 @@ if !cur_git_url.eql? new_git_url
   end
 
   execute "package" do
-    command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; mvn clean package" 
+    command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; mvn clean package -Dmaven.test.skip=true" 
 end
   execute "copy_wars" do
       command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; for i in $(find -regex '.*/target/[^/]*.war');do cp $i #{node['cookbook-qubell-build']['target']};done"
