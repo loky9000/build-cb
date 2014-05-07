@@ -88,9 +88,9 @@ end
   ruby_block "set attrs" do
      block do
         dir = node['cookbook-qubell-build']['target']
-        artefacts = (Dir.entries(dir).select {|f| !File.directory? f}).map {|f| "file://" + File.join(dir, f)}
-        artefacts = artefacts.sort
-        node.set['cookbook-qubell-build']['artefacts'] = artefacts
+        artifacts = (Dir.entries(dir).select {|f| !File.directory? f}).map {|f| "file://" + File.join(dir, f)}
+        artifacts = artifacts.sort
+        node.set['cookbook-qubell-build']['artifacts'] = artifacts
      end
   end
 

@@ -42,7 +42,7 @@ end
       assert_directory "#{node['cookbook-qubell-build']['dest_path']}/webapp", "root", "root", "755" 
   end  
   it "create target as  array with wars as elements" do
-      arr = node['cookbook-qubell-build']['artefacts']
+      arr = node['cookbook-qubell-build']['artifacts']
       assert arr.kind_of?(Array)
       assert arr.include?('file:///tmp/mvn/petclinic-1.0.0-SNAPSHOT.war')
   end
