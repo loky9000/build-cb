@@ -1,10 +1,10 @@
 ---
 driver:
   name: ec2
-  aws_access_key_id: <%= ENV['AWS_ACCESS_KEY'] %>
-  aws_secret_access_key: <%= ENV['AWS_SECRET_KEY'] %>
-  aws_ssh_key_id: <%= ENV['AWS_SSH_KEY_ID'] %>
-  ssh_key: <%= File.expand_path('.ssh/tkitchen') %>
+  aws_access_key_id: <%= ENV['ARTIFACTS_AWS_ACCESS_KEY_ID'] %>
+  aws_secret_access_key: <%= ENV['ARTIFACTS_AWS_SECRET_ACCESS_KEY'] %>
+  aws_ssh_key_id: <%= ENV['AWS_KEYPAIR_NAME'] %>
+  ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
   security_group_ids: ["default"]
   security_group_ids: default
   require_chef_omnibus: "10.16.2"
@@ -23,7 +23,7 @@ platforms:
       username: ubuntu
       flavor_id: "m1.small"
       tags:
-        Name: build-ct-Ubuntu-12.04
+        Name: cookbook-qubell-build-ct-Ubuntu-12.04
         owner_name: test-kitchen
 
   - name: ubuntu-10.04
@@ -32,7 +32,7 @@ platforms:
       username: ubuntu
       flavor_id: "m1.small"
       tags:
-        Name: build-ct-Ubuntu-10.04
+        Name: cookbook-qubell-build-ct-Ubuntu-10.04
         owner_name: test-kitchen
 
   - name: centos-6.4
@@ -41,7 +41,7 @@ platforms:
       username: root
       flavor_id: "m1.small"
       tags:
-        Name: build-ct-CentOS-6.4
+        Name: cookbook-qubell-build-ct-CentOS-6.4
         owner_name: test-kitchen
 
   - name: centos-5.3
@@ -50,15 +50,15 @@ platforms:
       username: root
       flavor_id: "m1.small"
       tags:
-        Name: build-ct-CentOS-5.3
+        Name: cookbook-qubell-build-ct-CentOS-5.3
         owner_name: test-kitchen
 
 suites:
   - name: default
     run_list:
       - recipe[minitest-handler]
-      - recipe[build_test]
-    attributes: {"build": {
+      - recipe[cookbook-qubell-build_test]
+    attributes: {"cookbook-qubell-build": {
                   "dest_path": "/tmp", 
                   "target": "/tmp/mvn"
                   },

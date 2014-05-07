@@ -1,4 +1,4 @@
-name "build"
+name "cookbook-qubell-build"
 version "0.2.0"
 
 depends "git", "2.7.1"
