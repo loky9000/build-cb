@@ -9,26 +9,10 @@ case node['platform_family']
 
 include_recipe "java"
 include_recipe "git"
-case node['platform_family']
-  when "debian"
-    include_recipe "apt"
-    apt_repository "apache-maven3" do
-      uri "http://ppa.launchpad.net/natecarlson/maven3/ubuntu/"
-      distribution node['lsb']['codename']
-      components   ['main']
-      keyserver    'keyserver.ubuntu.com'
-      key "3DD9F856"
-    end
-    package "maven3" do
-      action :install
-    end
-    link "/usr/sbin/mvn" do
-      to "/usr/bin/mvn3"
-    end
-  when "rhel"
-    mvn_version = "3.2.1"
+    mvn_version = "3.2.3"
     remote_file "/opt/apache-maven.tar.gz" do
-      source "http://mirror.olnevhost.net/pub/apache/maven/binaries/apache-maven-#{mvn_version}-bin.tar.gz"
+      source "http://apache.ip-connect.vn.ua/maven/maven-3/#{mvn_version}/binaries/apache-maven-#{mvn_version}-bin.tar.gz" 
+      checksum "2fcfdb327eb94b8595d97ee4181ef0a6"
     end
 
     bash "unpack apache-maven" do
@@ -40,7 +24,6 @@ case node['platform_family']
     link "/usr/sbin/mvn" do
       to "/opt/apache-maven-#{mvn_version}/bin/mvn"
     end
-  end
 
 git_url="/tmp/gittest"
 new_git_url = "#{node['scm']['repository']}?#{node['scm']['revision']}"
@@ -78,6 +61,7 @@ if !cur_git_url.eql? new_git_url
 
   execute "package" do
     command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; mvn clean package -Dmaven.test.skip=true" 
+    retries 3
 end
   execute "copy_wars" do
       command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; for i in $(find -regex '.*/target/[^/]*.war');do cp $i #{node['cookbook-qubell-build']['target']};done"

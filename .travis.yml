@@ -46,10 +46,7 @@ env:
   - secure: oDFv5f9IBEGO00XGF4KRWAfKpQw8wVgqMpQAHv1Cxn/58KGDRqiZTkg2yoqgLCIiM8sn7Kh4inerjOeYekeuQQxIfmilJ2LmB8VuF2kLEZF/Lt+24YKbC0wNglQvrowMyyZgsMsYM6fbgLH3kX1KLopmZPGGzMFaM9Ztegs7ZaY=
   - secure: tXs7L0LPeCYM4R8aGYtKZU3CnwO2FobOTN0vgyLPp16euU6RSC8uDb7tk/QLlRXCcftopCT7fvd7c8Rl979t+J/ouhImjoUphNa2SxeK65HIG6hTGLKS9dHTERMwF1BN9nzK19nBhVJizpT9oOBVBs2GbCCWuoZUNnBUfw5R0iA=
   matrix:
-  - KITCHEN_INSTANCE='default-ubuntu-1204'
-  - KITCHEN_INSTANCE='default-ubuntu-1004'
-  - KITCHEN_INSTANCE='default-centos-64'
-  - KITCHEN_INSTANCE='default-centos-53'
+  - KITCHEN_INSTANCE='default-ubuntu-1404'
 script:
 - bundle exec foodcritic ./ -f 'any'
 - bundle exec kitchen test $KITCHEN_INSTANCE -l debug

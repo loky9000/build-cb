@@ -4,10 +4,10 @@ driver:
   aws_access_key_id: <%= ENV['ARTIFACTS_AWS_ACCESS_KEY_ID'] %>
   aws_secret_access_key: <%= ENV['ARTIFACTS_AWS_SECRET_ACCESS_KEY'] %>
   aws_ssh_key_id: <%= ENV['AWS_KEYPAIR_NAME'] %>
+  availability_zone: "us-east-1a"
   ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
   security_group_ids: ["default"]
   security_group_ids: default
-  require_chef_omnibus: "10.16.2"
   tags:
     "created-by": "test-kitchen"
 
@@ -17,6 +17,15 @@ provisioner:
   name: chef_solo
 
 platforms:
+  - name: ubuntu-14.04
+    driver:
+      image_id: ami-c43491ac 
+      username: ubuntu
+      flavor_id: "m1.small"
+      tags:
+        Name: cookbook-qubell-build-ct-Ubuntu-14.04
+        owner_name: test-kitchen
+
   - name: ubuntu-12.04
     driver:
       image_id: ami-967edcff
