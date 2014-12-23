@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jollyrojer/build-cb.png?branch=master)](https://travis-ci.org/jollyrojer/build-cb)
+[![Build Status](https://travis-ci.org/qubell-bazaar/cookbook-qubell-build.png?branch=master)](https://travis-ci.org/qubell-bazaar/cookbook-qubell-build)
 
 Build Cookbook
 ==============

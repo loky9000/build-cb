@@ -51,7 +51,6 @@ env:
   - KITCHEN_INSTANCE='default-centos-64'
   - KITCHEN_INSTANCE='default-centos-53'
 script:
-- bundle exec foodcritic ./ -f 'any'
 - bundle exec kitchen test $KITCHEN_INSTANCE -l debug
 after_script:
 - bundle exec kitchen destroy $KITCHEN_INSTANCE
