@@ -1,5 +1,19 @@
 # Recipe cookbook-qubell-build  app  from git , parse war files and copy to cookbook-qubell-build target
 #
+case node[:platform_family]
+  when "debian"
+    execute "update packages cache" do
+      command "apt-get update"
+    end
+
+    service "ufw" do
+      action :stop
+    end
+  when "rhel"
+    service "iptables" do
+      action :stop
+    end
+  end
 case node['platform_family']
   when "debian"
     execute "update packages cache" do
@@ -7,6 +21,7 @@ case node['platform_family']
     end
   end
 
+include_recipe "python"
 include_recipe "java"
 include_recipe "git"
 case node['platform_family']
@@ -41,6 +56,19 @@ case node['platform_family']
       to "/opt/apache-maven-#{mvn_version}/bin/mvn"
     end
   end
+service "SimpleHttpServer" do
+ supports :restart => true
+ action :nothing
+end
+template "/etc/init.d/SimpleHttpServer" do
+  mode "0755"
+  source "SimpleHttpServer-init.erb"
+  variables(
+    :port => node['cookbook-qubell-build']['port'],
+    :host => node['cookbook-qubell-build']['host'],
+    :target_dir => node['cookbook-qubell-build']['target']
+    )
+end
 
 git_url="/tmp/gittest"
 new_git_url = "#{node['scm']['repository']}?#{node['scm']['revision']}"
@@ -78,19 +106,21 @@ if !cur_git_url.eql? new_git_url
 
   execute "package" do
     command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; mvn clean package -Dmaven.test.skip=true" 
-end
-  execute "copy_wars" do
-      command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; for i in $(find -regex '.*/target/[^/]*.war');do cp $i #{node['cookbook-qubell-build']['target']};done"
-      notifies :create, "ruby_block[set attrs]"
   end
-
-
+  execute "copy_wars" do
+      command "rm -rf #{node['cookbook-qubell-build']['target']}/*;cd #{node['cookbook-qubell-build']['dest_path']}/webapp; for i in $(find -regex '.*/target/[^/]*.war');do cp $i #{node['cookbook-qubell-build']['target']}/`date +%Y%m%d%H%M%S`-`basename $i`; done"
+      notifies :create, "ruby_block[set attrs]"
+      notifies :restart, "service[SimpleHttpServer]"
+  end
   ruby_block "set attrs" do
      block do
         dir = node['cookbook-qubell-build']['target']
         artifacts = (Dir.entries(dir).select {|f| !File.directory? f}).map {|f| "file://" + File.join(dir, f)}
+        artifacts_urls = (Dir.entries(dir).select {|f| !File.directory? f}).map {|f| "http://" + "#{node['cookbook-qubell-build']['host']}:" + "#{node['cookbook-qubell-build']['port']}" + File.join("/", f)}
+        artifacts_urls = artifacts_urls.sort
         artifacts = artifacts.sort
         node.set['cookbook-qubell-build']['artifacts'] = artifacts
+        node.set['cookbook-qubell-build']['artifacts_urls'] = artifacts_urls
      end
   end
 

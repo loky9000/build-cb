@@ -7,7 +7,7 @@ driver:
   ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
   security_group_ids: ["default"]
   security_group_ids: default
-  require_chef_omnibus: "10.16.2"
+  require_chef_omnibus: "11.12.8"
   tags:
     "created-by": "test-kitchen"
 
@@ -59,6 +59,7 @@ suites:
       - recipe[minitest-handler]
       - recipe[cookbook-qubell-build_test]
     attributes: {"cookbook-qubell-build": {
+                  "port": 8080,
                   "dest_path": "/tmp", 
                   "target": "/tmp/mvn"
                   },
