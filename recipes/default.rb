@@ -70,59 +70,33 @@ template "/etc/init.d/SimpleHttpServer" do
     )
 end
 
-git_url="/tmp/gittest"
-new_git_url = "#{node['scm']['repository']}?#{node['scm']['revision']}"
-cur_git_url = ""
-
  directory node['cookbook-qubell-build']['target'] do
    action :create
  end
 
-if File.exist?(git_url)
-  cur_git_url = File.read(git_url)
+ git "#{node['cookbook-qubell-build']['dest_path']}/webapp" do
+   repository node['scm']['repository']
+   revision node['scm']['revision']
+   action :sync
+ end
+
+execute "package" do
+  command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; mvn clean package -Dmaven.test.skip=true" 
+end
+execute "copy_wars" do
+    command "rm -rf #{node['cookbook-qubell-build']['target']}/*;cd #{node['cookbook-qubell-build']['dest_path']}/webapp; for i in $(find -regex '.*/target/[^/]*.war');do cp $i #{node['cookbook-qubell-build']['target']}/`basename $i`-`md5sum $i| awk '{ print $1 }'`; done"
+    notifies :create, "ruby_block[set attrs]"
+    notifies :restart, "service[SimpleHttpServer]"
 end
 
-if !cur_git_url.eql? new_git_url
-
-  case node['scm']['provider']
-    when "git"
-      bash "clean #{node['cookbook-qubell-build']['dest_path']}/webapp" do
-        code <<-EEND
-          rm -rf #{node['cookbook-qubell-build']['dest_path']}/webapp
-        EEND
-      end
-      git "#{node['cookbook-qubell-build']['dest_path']}/webapp" do
-        repository node['scm']['repository']
-        revision node['scm']['revision']
-        action :sync
-      end
-    when "subversion"
-      Chef::Provider::Subversion
-    when "remotefile"
-      Chef::Provider::RemoteFile::Deploy
-    when "file"
-      Chef::Provider::File::Deploy
-  end
-
-  execute "package" do
-    command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; mvn clean package -Dmaven.test.skip=true" 
-  end
-  execute "copy_wars" do
-      command "rm -rf #{node['cookbook-qubell-build']['target']}/*;cd #{node['cookbook-qubell-build']['dest_path']}/webapp; for i in $(find -regex '.*/target/[^/]*.war');do cp $i #{node['cookbook-qubell-build']['target']}/`date +%Y%m%d%H%M%S`-`basename $i`; done"
-      notifies :create, "ruby_block[set attrs]"
-      notifies :restart, "service[SimpleHttpServer]"
-  end
-  ruby_block "set attrs" do
-     block do
-        dir = node['cookbook-qubell-build']['target']
-        artifacts = (Dir.entries(dir).select {|f| !File.directory? f}).map {|f| "file://" + File.join(dir, f)}
-        artifacts_urls = (Dir.entries(dir).select {|f| !File.directory? f}).map {|f| "http://" + "#{node['cookbook-qubell-build']['host']}:" + "#{node['cookbook-qubell-build']['port']}" + File.join("/", f)}
-        artifacts_urls = artifacts_urls.sort
-        artifacts = artifacts.sort
-        node.set['cookbook-qubell-build']['artifacts'] = artifacts
-        node.set['cookbook-qubell-build']['artifacts_urls'] = artifacts_urls
-     end
-  end
-
-  File.open(git_url, 'w') { |file| file.write("#{node['scm']['repository']}?#{node['scm']['revision']}") }
+ruby_block "set attrs" do
+  block do
+    dir = node['cookbook-qubell-build']['target']
+    artifacts = (Dir.entries(dir).select {|f| !File.directory? f}).map {|f| "file://" + File.join(dir, f)}
+    artifacts_urls = (Dir.entries(dir).select {|f| !File.directory? f}).map {|f| "http://" + "#{node['cookbook-qubell-build']['host']}:" + "#{node['cookbook-qubell-build']['port']}" + File.join("/", f)}
+    artifacts_urls = artifacts_urls.sort
+    artifacts = artifacts.sort
+    node.set['cookbook-qubell-build']['artifacts'] = artifacts
+    node.set['cookbook-qubell-build']['artifacts_urls'] = artifacts_urls
+   end
 end
