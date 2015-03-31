@@ -42,57 +42,48 @@ case node['platform_family']
     end
   end
 
-git_url="/tmp/gittest"
-new_git_url = "#{node['scm']['repository']}?#{node['scm']['revision']}"
-cur_git_url = ""
+directory node['cookbook-qubell-build']['target'] do
+  action :create
+end
 
- directory node['cookbook-qubell-build']['target'] do
+directory "/tmp/checksum/" do
    action :create
- end
-
-if File.exist?(git_url)
-  cur_git_url = File.read(git_url)
 end
 
-if !cur_git_url.eql? new_git_url
+md5_file = "/tmp/checksum/mvn_dir.md5"
 
-  case node['scm']['provider']
-    when "git"
-      bash "clean #{node['cookbook-qubell-build']['dest_path']}/webapp" do
-        code <<-EEND
-          rm -rf #{node['cookbook-qubell-build']['dest_path']}/webapp
-        EEND
-      end
-      git "#{node['cookbook-qubell-build']['dest_path']}/webapp" do
-        repository node['scm']['repository']
-        revision node['scm']['revision']
-        action :sync
-      end
-    when "subversion"
-      Chef::Provider::Subversion
-    when "remotefile"
-      Chef::Provider::RemoteFile::Deploy
-    when "file"
-      Chef::Provider::File::Deploy
-  end
-
-  execute "package" do
-    command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; mvn clean package -Dmaven.test.skip=true" 
+git "#{node['cookbook-qubell-build']['dest_path']}/webapp" do
+  repository node['scm']['repository']
+  revision node['scm']['revision']
+  action :sync
+  notifies :run, "execute[package]", :immediately
 end
-  execute "copy_wars" do
-      command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; for i in $(find -regex '.*/target/[^/]*.war');do cp $i #{node['cookbook-qubell-build']['target']};done"
-      notifies :create, "ruby_block[set attrs]"
-  end
-
-
-  ruby_block "set attrs" do
-     block do
-        dir = node['cookbook-qubell-build']['target']
-        artifacts = (Dir.entries(dir).select {|f| !File.directory? f}).map {|f| "file://" + File.join(dir, f)}
-        artifacts = artifacts.sort
-        node.set['cookbook-qubell-build']['artifacts'] = artifacts
-     end
-  end
-
-  File.open(git_url, 'w') { |file| file.write("#{node['scm']['repository']}?#{node['scm']['revision']}") }
+execute "package" do
+  command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; mvn clean package -Dmaven.test.skip=true" 
+  retries 3
+  action :nothing
+  not_if "md5sum -c #{md5_file}"
+  notifies :run, "execute[copy_wars]", :immediately
 end
+execute "copy_wars" do
+  command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; for i in $(find -regex '.*/target/[^/]*.war');do cp $i #{node['cookbook-qubell-build']['target']};done"
+  notifies :create, "ruby_block[set attrs]"
+  action :nothing
+end
+
+bash "create md5" do
+  code <<-EEND
+    md5sum -b #{node['cookbook-qubell-build']['target']}/*.war > #{md5_file}
+  EEND
+  not_if "md5sum -c #{md5_file}"
+end
+
+ruby_block "set attrs" do
+   block do
+      dir = node['cookbook-qubell-build']['target']
+      artifacts = (Dir.entries(dir).select {|f| !File.directory? f}).map {|f| "file://" + File.join(dir, f)}
+      artifacts = artifacts.sort
+      node.set['cookbook-qubell-build']['artifacts'] = artifacts
+   end
+end
+
