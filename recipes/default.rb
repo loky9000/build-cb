@@ -62,7 +62,6 @@ execute "package" do
   command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; mvn clean package -Dmaven.test.skip=true" 
   retries 3
   action :nothing
-  not_if "md5sum -c #{md5_file}"
   notifies :run, "execute[copy_wars]", :immediately
 end
 execute "copy_wars" do
