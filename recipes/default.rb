@@ -74,19 +74,22 @@ end
    action :create
  end
 
- git "#{node['cookbook-qubell-build']['dest_path']}/webapp" do
-   repository node['scm']['repository']
-   revision node['scm']['revision']
-   action :sync
- end
-
+git "#{node['cookbook-qubell-build']['dest_path']}/webapp" do
+  repository node['scm']['repository']
+  revision node['scm']['revision']
+  action :sync
+  notifies :run, "execute[package]", :immediately
+end
 execute "package" do
   command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; mvn clean package -Dmaven.test.skip=true" 
+  retries 3
+  action :nothing
+  notifies :run, "execute[copy_wars]", :immediately
 end
 execute "copy_wars" do
-    command "rm -rf #{node['cookbook-qubell-build']['target']}/*;cd #{node['cookbook-qubell-build']['dest_path']}/webapp; for i in $(find -regex '.*/target/[^/]*.war');do cp $i #{node['cookbook-qubell-build']['target']}/`basename $i`-`md5sum $i| awk '{ print $1 }'`; done"
-    notifies :create, "ruby_block[set attrs]"
-    notifies :restart, "service[SimpleHttpServer]"
+  command "cd #{node['cookbook-qubell-build']['dest_path']}/webapp; for i in $(find -regex '.*/target/[^/]*.war');do cp $i #{node['cookbook-qubell-build']['target']};done"
+  notifies :create, "ruby_block[set attrs]"
+  action :nothing
 end
 
 ruby_block "set attrs" do
